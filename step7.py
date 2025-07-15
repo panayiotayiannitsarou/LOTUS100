@@ -1,28 +1,14 @@
 
 import pandas as pd
-from collections import defaultdict
 import itertools
 
-def get_category(subdf):
-    fyla = subdf["ΦΥΛΟ"].unique()
-    glwssa = subdf["ΚΑΛΗ ΓΝΩΣΗ ΕΛΛΗΝΙΚΩΝ"].unique()
-    if len(fyla) > 1:
-        return "Μικτού Φύλου"
-    elif len(glwssa) == 1:
-        if fyla[0] == "Α":
-            return "Καλή Γνώση (Αγόρια)" if glwssa[0] == "Ν" else "Όχι Καλή Γνώση (Αγόρια)"
-        else:
-            return "Καλή Γνώση (Κορίτσια)" if glwssa[0] == "Ν" else "Όχι Καλή Γνώση (Κορίτσια)"
-    else:
-        return "Μικτής Γνώσης (Αγόρια)" if fyla[0] == "Α" else "Μικτής Γνώσης (Κορίτσια)"
-
-def step7_elgxos_dior8oseis(df, num_classes):
-    success_status = True
+def step7_final_check_and_fix(df, num_classes, max_diff=3):
     df = df.copy()
-    warnings = []
     class_labels = [f"Τμήμα {i+1}" for i in range(num_classes)]
+    warnings = []
+    success_status = True
 
-    # Προετοιμασία: Φτιάχνουμε ομάδες από Βήματα 5 και 6 (ΚΛΕΙΔΩΜΕΝΟΣ == False)
+    # Βρες ομάδες μη κλειδωμένων με πλήρως αμοιβαίες φιλίες
     groups = []
     visited = set()
     name_to_index = {row["ΟΝΟΜΑΤΕΠΩΝΥΜΟ"]: idx for idx, row in df[df["ΚΛΕΙΔΩΜΕΝΟΣ"] == False].iterrows()}
@@ -45,33 +31,26 @@ def step7_elgxos_dior8oseis(df, num_classes):
                     visited.add(f_idx)
         groups.append(group)
 
-    # Υπολογισμός συνολικών χαρακτηριστικών ανά τμήμα
     def count_per_class(df, colname, value="Ν"):
-        counts = {}
-        for label in class_labels:
-            counts[label] = (df[df["ΠΡΟΤΕΙΝΟΜΕΝΟ_ΤΜΗΜΑ"] == label][colname] == value).sum()
-        return counts
+        return {label: (df[df["ΠΡΟΤΕΙΝΟΜΕΝΟ_ΤΜΗΜΑ"] == label][colname] == value).sum() for label in class_labels}
 
     def student_count(df):
         return df["ΠΡΟΤΕΙΝΟΜΕΝΟ_ΤΜΗΜΑ"].value_counts().to_dict()
 
-    def difference_exceeds(c1, c2, threshold=3):
-        return abs(c1 - c2) > threshold
+    def difference_exceeds(a, b, threshold):
+        return abs(a - b) > threshold
 
-    # Επαναλαμβανόμενο check για κάθε χαρακτηριστικό
     characteristics = [
         ("ΦΥΛΟ", ["Α", "Κ"]),
-        ("ΚΑΛΗ ΓΝΩΣΗ ΕΛΛΗΝΙΚΩΝ", ["Ν", "Ο"]),
-        ("ΙΚΑΝΟΠΟΙΗΤΙΚΗ ΜΑΘΗΣΙΑΚΗ ΙΚΑΝΟΤΗΤΑ", ["Ν", "Ο"])
+        ("ΓΝΩΣΗ_ΕΛΛΗΝΙΚΩΝ", ["Ν", "Ο"]),
+        ("ΜΑΘΗΣΙΑΚΗ_ΙΚΑΝΟΤΗΤΑ", ["Ν", "Ο"])
     ]
 
     for col, values in characteristics:
         counts = count_per_class(df, col, values[0])
-
-        # Εξετάζουμε όλα τα πιθανά ζευγάρια τμημάτων
         for cls1, cls2 in itertools.combinations(class_labels, 2):
             v1, v2 = counts.get(cls1, 0), counts.get(cls2, 0)
-            if difference_exceeds(v1, v2):
+            if difference_exceeds(v1, v2, max_diff):
                 found = False
                 for g1 in groups:
                     for g2 in groups:
@@ -84,7 +63,6 @@ def step7_elgxos_dior8oseis(df, num_classes):
                             f2 = df.loc[g2, col].unique()
                             same_gender = df.loc[g1, "ΦΥΛΟ"].nunique() == 1 and df.loc[g2, "ΦΥΛΟ"].nunique() == 1
                             if same_gender and f1[0] == values[0] and f2[0] == values[1]:
-                                # Ανταλλαγή
                                 df.loc[g1, "ΠΡΟΤΕΙΝΟΜΕΝΟ_ΤΜΗΜΑ"] = cls2
                                 df.loc[g2, "ΠΡΟΤΕΙΝΟΜΕΝΟ_ΤΜΗΜΑ"] = cls1
                                 found = True
@@ -101,8 +79,7 @@ def step7_elgxos_dior8oseis(df, num_classes):
             success_status = False
             warnings.append(f"⛔ Παραβίαση πληθυσμιακής ισορροπίας μεταξύ {c1} και {c2}")
     for tm, count in counts.items():
-        if count > 2:
-            success_status = False5:
+        if count > 25:
             success_status = False
             warnings.append(f"⛔ Το {tm} υπερβαίνει το όριο των 25 μαθητών")
 
