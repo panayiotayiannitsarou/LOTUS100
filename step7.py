@@ -2,11 +2,14 @@
 import pandas as pd
 import itertools
 
-def step7_final_check_and_fix(df, num_classes, max_diff=3):
+from step7 import step7_final_check_and_fix  # Εισαγωγή από το αρχείο step7.py
+
+# Προαιρετική wrapper συνάρτηση (αν την καλείς αλλού μέσα στο app)
+def apply_final_check(df, num_classes, max_diff=3):
     df = df.copy()
-    class_labels = [f"Τμήμα {i+1}" for i in range(num_classes)]
-    warnings = []
-    success_status = True
+    df, success_status, warnings = step7_final_check_and_fix(df, num_classes, max_diff)
+    return df, success_status, warnings
+
 
     # Βρες ομάδες μη κλειδωμένων με πλήρως αμοιβαίες φιλίες
     groups = []
