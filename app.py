@@ -10,7 +10,7 @@ from step3 import step3_katanomi_idiaiterotites
 from step4 import step4_katanomi_filia
 from step5 import step5_omadopoihsh_katigories, step5_katanomi_omadon_se_tmimata
 from step6 import step6_ypolipoi_xwris_filies
-from step7 import step7_elgxos_dior8oseis
+from step7_final_check_and_fix import step7_final_check_and_fix
 
 # ➤ Κλείδωμα με Κωδικό
 st.sidebar.title("🔐 Κωδικός Πρόσβασης")
@@ -50,7 +50,7 @@ if uploaded_file:
     with st.spinner("▶️ Βήμα 6: Υπόλοιποι Μαθητές Χωρίς Φιλίες..."):
         df = step6_ypolipoi_xwris_filies(df, num_classes)
     with st.spinner("▶️ Βήμα 7: Έλεγχος & Διορθώσεις..."):
-        df, warnings, success = step7_elgxos_dior8oseis(df, num_classes)
+        df, warnings, success = step7_final_check_and_fix(df, num_classes)
         if not success:
             st.error("⛔ Η κατανομή δεν ήταν επιτυχής λόγω παραβίασης πληθυσμιακών περιορισμών (π.χ. >25 μαθητές ή διαφορά >2).")
             st.stop()
