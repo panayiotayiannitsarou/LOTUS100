@@ -2,18 +2,18 @@
 import pandas as pd
 from collections import defaultdict
 
-    # Βήμα 3: Κατηγοριοποίηση ομάδων και ήδη τοποθετημένων
-    def get_category(subdf):
-        fyla = subdf["ΦΥΛΟ"].unique()
-        glwssa = subdf["ΚΑΛΗ ΓΝΩΣΗ ΕΛΛΗΝΙΚΩΝ"].unique()
+# Βήμα 3: Κατηγοριοποίηση ομάδων και ήδη τοποθετημένων
+def get_category(subdf):
+    fyla = subdf["ΦΥΛΟ"].unique()
+    glwssa = subdf["ΚΑΛΗ ΓΝΩΣΗ ΕΛΛΗΝΙΚΩΝ"].unique()
 
-        if len(fyla) > 1:
-            return "Μικτού Φύλου"
-        elif len(glwssa) == 1:
-            if fyla[0] == "Α":
-                return "Καλή Γνώση (Αγόρια)" if glwssa[0] == "Ν" else "Όχι Καλή Γνώση (Αγόρια)"
-            else:
-                return "Καλή Γνώση (Κορίτσια)" if glwssa[0] == "Ν" else "Όχι Καλή Γνώση (Κορίτσια)"
+    if len(fyla) > 1:
+        return "Μικτού Φύλου"
+    elif len(glwssa) == 1:
+        if fyla[0] == "Α":
+            return "Καλή Γνώση (Αγόρια)" if glwssa[0] == "Ν" else "Όχι Καλή Γνώση (Αγόρια)"
+        else:
+            return "Καλή Γνώση (Κορίτσια)" if glwssa[0] == "Ν" else "Όχι Καλή Γνώση (Κορίτσια)"
         else:
             return "Μικτής Γνώσης (Αγόρια)" if fyla[0] == "Α" else "Μικτής Γνώσης (Κορίτσια)"
 
