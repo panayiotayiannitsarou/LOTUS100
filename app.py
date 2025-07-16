@@ -10,7 +10,7 @@ from step3 import step3_katanomi_idiaiterotites
 from step4 import step4_katanomi_filia
 from step5 import step5_omadopoihsh_katigories, step5_katanomi_omadon_se_tmimata
 from step6 import step6_ypolipoi_xwris_filies
-from step7 import step7_final_check_and_fix
+#from step7 import step7_final_check_and_fix
 
 # ➤ Κλείδωμα με Κωδικό
 st.sidebar.title("🔐 Κωδικός Πρόσβασης")
