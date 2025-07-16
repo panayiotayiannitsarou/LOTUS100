@@ -2,7 +2,7 @@
 import pandas as pd
 import itertools
 
-from step7 import step7_final_check_and_fix  # Εισαγωγή από το αρχείο step7.py
+#from step7 import step7_final_check_and_fix  # Εισαγωγή από το αρχείο step7.py
 
 # Προαιρετική wrapper συνάρτηση (αν την καλείς αλλού μέσα στο app)
 def apply_final_check(df, num_classes, max_diff=3):
